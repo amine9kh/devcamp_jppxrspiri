@@ -1,0 +1,283 @@
+{% load static %}
+<!DOCTYPE html>
+<link rel="stylesheet" href={% static 'css/chat.css'%}>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="../static/images/ecom (1).png" type="image/x-icon">
+
+  
+    <title>EComPlan Chat</title>
+</head>
+<body>
+    <section class="main-interface">
+        <nav>
+            <a href="../home_view" id="filterbtn"> <img class="nav-icon"src="../static/images/home.png" alt="" class="icon"> </a>
+            <img class="logo" src="../static/images/ecom.png" alt="" class="icon" id="LogIcon">
+            <div>
+                <span><a href="http://127.0.0.1:8000/signin_view">Log Out</a></span>
+                <a href="logout"><img class="logout" src="../static/images/Log-Out Icon.png" alt="" class="icon"></a>
+            </div>
+        </nav>
+
+        <div class="content">
+            <ul class="chat-content" id="chat-content"><!-- C'est ici que s'afficheront les Li "User" et "Chat"--></ul>
+        </div>
+        <div class="promptZone-container">
+            <div class="promptZone">
+                <img class="inner-logo" id="LogIcon"src="../static/images/ecom (1).png" alt="" class="icon">
+                <form action="http://localhost:8000/get_answer/" id="messageForm" method="get">
+                    <input type="text" placeholder="send a message" id="userInputField" autocomplete="off"/>
+                </form>
+                <img src="../static/images/Sending Icon.png" alt="" id="sendinIcon" >
+            </div>
+            <div id="mic-icon">
+                <ion-icon name="mic"></ion-icon>
+            </div>
+        </div>
+    </section>
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script >
+        const logIcon= document.getElementById("LogIcon");
+        const sendIcon = document.getElementById("sendinIcon");
+        const chatContent = document.querySelector(".chat-content");
+        const inputField = document.getElementById("userInputField");
+        function showComputerResponse(response) {
+            setTimeout(()=>{const computerResponse = document.createElement("li");
+            computerResponse.innerText = response;
+            computerResponse.classList.add("computer-response"); // Adding a class for styling
+            chatContent.appendChild(computerResponse);},2000)
+          }
+          function showUserQuery() {
+            const userInput = document.getElementById("userInputField").value;
+            const userQuery = document.createElement("li");
+            userQuery.innerText = userInput;
+            userQuery.classList.add("user-query");
+            chatContent.appendChild(userQuery);
+            inputField.value = "";}
+        
+        console.log("s");
+        function speechRecognition() {
+            const userQuery = document.createElement("li");
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = "en-US"//"en-US";
+            recognition.interimResults = true;
+            console.log('clicked');// pour le debogage 
+            let currentTranscription = '';
+            let timeout;
+        
+            recognition.onresult = function (event) {
+                const interimTranscript = event.results[0][0].transcript;
+                if (timeout) {
+                    clearTimeout(timeout);
+                }
+                timeout = setTimeout(() => {
+                    currentTranscription += interimTranscript + ' ';
+                    userQuery.innerText = currentTranscription;
+                    chatContent.appendChild(userQuery);
+                }, 1000);
+            }
+            recognition.start();
+        }
+        
+        // Réagir au clic sur l'icône d'envoi
+        sendinIcon.addEventListener("click",()=>{
+            if(inputField.value===""){console.log("empty prompt , not displayed")}
+            if(inputField.value !=""){
+                logIcon.style="animation:logrotation 3s ease-in-out 3"
+                setTimeout(()=>{logIcon.style=""},9000)
+                showUserQuery();
+            }})
+        
+        const micIcon = document.querySelector("#mic-icon");
+        // Réagir au clic sur l'icône du microphone
+        micIcon.addEventListener("click", speechRecognition);// on a supprimé 
+        // Réagir à la pression de la touche "Entrée" pour envoyer la requête
+        inputField.addEventListener('keypress', function (event) {
+        
+            if(event.keyCode===13 && inputField.value==""){
+                alert('empty prompt,not displayed')
+                event.preventDefault();
+            }
+            if (event.keyCode === 13) {
+                showUserQuery();
+                event.preventDefault();
+                logIcon.style="animation:logrotation 3s ease-in-out 3"
+                setTimeout(()=>{logIcon.style=""},9000)
+                inputField.value = "";
+                return false;
+            }
+            
+        });
+        
+        // connecting to tuned gpt
+ document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('sendinIcon').addEventListener('click', function(event) {
+                event.preventDefault(); // Prevent the form from submitting traditionally
+                
+                var userInput = document.getElementById('userInputField').value; // Get user input from the form field
+                
+                // Make a fetch request to your Django backend
+                fetch('http://localhost:8000/get-answer/?userInputField=' + userInput)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data.response);
+                        // Update the response container with the answer from OpenAI
+                       showComputerResponse (data.response);
+                    })
+                    .catch(error => {
+                        // Handle errors, if any
+                        console.error('Error:', error);
+                    });
+            });
+        }); 
+
+     </script>
+     <script>
+        // On va d'abord gerer la possibilité d'afficher les requêtes de l'utilisateur à l'écran 
+
+const logIcon= document.getElementById("LogIcon");
+let sendinIcon=document.getElementById("sendinIcon");
+let chat_content=document.querySelector(".chat-content");
+let inputField=document.getElementById("userInputField")
+function showUserQuery(){
+    let Query=document.getElementById("userInputField").value;
+    let userQuery=document.createElement("li")
+    userQuery.innerText=`${Query}`;//On a enlevé le Label ser car tout ce qui vient de l'user est en gris
+    //et tout ce qui viendra de l'API sera en bleu 
+    chat_content.appendChild(userQuery); 
+    inputField.value="";return false;//Pour vider le contenu du bail
+}
+function speechReco(){
+    let userQuery=document.createElement("li")
+    var speechRecognition=window.speechRecognition || window.webkitSpeechRecognition;
+    var recognition=new speechRecognition;
+    recognition.continuous=false;
+    recognition.lang="fr-FR";
+    recognition.interimResults=true;
+    //fin setup
+    let currentTranscription = ''; // Stockage de la transcription actuelle
+    let timeout; 
+    recognition.onresult=function(event){
+        let interimTranscript=event.results[0][0].transcript;
+        if(timeout){
+            clearTimeout(timeout)
+        }
+        timeout=setTimeout(()=>{
+            // Pause détectée, ajoutez la transcription intermédiaire à la transcription complète
+            currentTranscription += interimTranscript + ' ';
+            userQuery.innerText=currentTranscription;
+            chat_content.appendChild(userQuery);
+        },1000)
+    }
+    recognition.start();
+}
+
+
+//Important : dans ces deux blocs d'actions , faudra trouver un moyen pour faire en sorte que le contenu de Show UserQuery et de SpeechReco
+//soit envoyé à L'API de chatGPT
+
+// sendinIcon.addEventListener("click",()=>{
+//     if(inputField.value===""){
+//         console.log("empty prompt , not displayed")
+//     }
+//     if(inputField.value !=""){
+//         logIcon.style="animation:logrotation 3s ease-in-out 3"
+//         setTimeout(()=>{logIcon.style=""},9000)
+//         showUserQuery()}
+// })//il faut trouver une methode qui me permettteras de savois si le truc est rempli ou non
+
+
+//ecrire(showUserQuery()) proovoque un appel immédiat de la fonction et donc lannce la reconnaissance vocale  au chargement de la page 
+// j'aurais pas pu m'en apercevoir car jusque là j'utilisais pas des fonctions hyper dynamiques , mais toujours est il que mes autres fonctions font le taff , même si
+//il font un appel immédiat , en fait c'est ce qui creait la bulle où y avait rien
+//Integration de la reconnaissance vocale 
+let micIcon=document.querySelector("#mic-icon");
+micIcon.addEventListener('click',speechReco)
+
+//utiliser le champs de l'input pour pouvoir utliser la touche entrer
+inputField.addEventListener('keypress',function (event) {
+    if(event.keyCode===13 && inputField.value==""){
+        console.log("empty prompt,not displayed")
+        event.preventDefault();
+    }
+    if(event.keyCode===13&& inputField.value != ""){
+         showUserQuery();
+         event.preventDefault();
+         logIcon.style="animation:logrotation 3s ease-in-out 3"//pour pouvoir animer la page le temps que la reponse de GPT ne vienne 
+         setTimeout(()=>{logIcon.style=""},9000);//permet de vider la propriété d'aimation
+         inputField.value="";return false;//Pour vider le contenu du bail
+
+        }
+        
+})
+
+// ... (your existing code)
+
+let innerLogo = document.querySelector(".inner-logo");
+
+function rotateInnerLogo() {
+    innerLogo.classList.add("rotate");
+    setTimeout(() => {
+        innerLogo.classList.remove("rotate");
+    }, 1000); // Adjust the duration as needed
+}
+
+sendinIcon.addEventListener("click", () => {
+    if (inputField.value === "") {
+        console.log("empty prompt, not displayed");
+    }
+    if (inputField.value !== "") {
+        rotateInnerLogo(); // Rotate the inner logo when sending a message
+
+        logIcon.style = "animation: logrotation 3s ease-in-out 3";
+        setTimeout(() => {
+            logIcon.style = "";
+        }, 9000);
+
+        // Show user query
+        showUserQuery();
+
+        // Simulate a delay for processing (replace this with your actual processing logic)
+        setTimeout(() => {
+            // Simulate a response from ChatGPT
+            showGPTResponse("This is a response from ChatGPT");
+        }, 2000);
+
+        // Clear input field
+        inputField.value = "";
+    }
+});
+
+// ... (your existing code)
+
+
+// On va utiliser quasiment la même methode mais cette fois ci on va faire entrer une API dans le game 
+
+//PS : JE DOIS DESACTIVER L'AUTOSAVE LORSQUE JE COMMENCERAI A UTILISER L'API de chat GPT
+/**Pour la reconnaissance vocale : 
+ * creer une fonction de speech recognition contenant les éléments suivant {
+ * -initialiser la reconnaissance vocale 
+ * -demarer la reconnaissanc vocale 
+ * -lancer un timer de 60s qui s'affiche sur l'interface et qui devient rouge quand 
+ * on atteiint les 10s restantes 
+ * -à la fin du timer  recuperer la transcription ,
+ * -afficher la transcription sur l'interface 
+ * }
+ * 
+ *Suite du programme :
+ -envoyer la transcription à chatGPT 
+ -recuperer la reponse de GPT
+ -afficher la reponse de GPT sur l'interface
+ * 
+ */
+
+     </script>
+    
+</body>
+</html>

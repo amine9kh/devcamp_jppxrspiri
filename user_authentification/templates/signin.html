@@ -1,0 +1,229 @@
+{% load static %}
+<!DOCTYPE html>
+
+<link rel="stylesheet" href="{% static 'css/signin.css' %}">
+<link rel="stylesheet" href="{% static 'css/fontawesome.css' %}">
+
+
+
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>sign in</title>
+  
+   
+   
+  
+    <link rel="stylesheet"href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+    
+  
+  </head>
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+<body>
+
+
+  
+  
+  <section id="signin">
+    <div class="containerr">
+        <div class="forms-containerr">
+          <div class="signin-signup">
+            <form action="{% url 'login' %}" class="sign-in-form" method="POST">
+              {% csrf_token %}
+              <h2 class="title">Sign In</h2>
+              <div class="input-field">
+                <i class="fas fa-user"></i>
+                <input type="text" placeholder="Username" name="identifier" />
+              </div>
+              <div class="input-field">
+                <i class="fas fa-lock"></i>
+                <input type="password" placeholder="Password" name="password"  />
+              </div>
+              <input type="submit" value="Login" class="btn1"  onclick="validateSignUpForm()"  />
+  
+            </form>
+  
+  
+         <form action="{% url 'register' %}" class="sign-up-form" id="signupForm" method="POST">
+          {% csrf_token %}
+              <h2 class="title">Sign Up</h2>
+              <div class="input-field">
+                <i class="fas fa-user"></i>
+                <input type="text" id="firstName" placeholder="First Name" name="first_name"  />
+                <span id="firstNameError" class="error"></span>
+              </div>
+              <div class="input-field">
+                <i class="fas fa-user"></i>
+                <input type="text" id="lastName" placeholder="Last Name" name="last_name" />
+                <span id="lastNameError" class="error"></span>
+              </div>
+              <div class="input-field">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" placeholder="Username" name="username" />
+                <span id="usernameError" class="error"></span>
+              </div>
+              
+              <div class="input-field">
+                <i class="fas fa-envelope"></i>
+                <input type="text" id="email" placeholder="Email" name="email" name="email" />
+                <span id="emailError" class="error"></span>
+              </div>
+              <div class="input-field">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="Password" name="password" name="password" />
+                <span id="passwordError" class="error"></span>
+              </div>
+              <input type="submit" value="Sign Up" class="btn2" onclick="validateSignInForm()" />
+            
+              
+          </div>
+        </div>
+        <div class="panels-containerr">
+  
+          <div class="panel left-panel">
+              <div class="content">
+                  <h3>New to EComPlan</h3>
+                  <p>Create your marketing strategy using a well trained gpt model</p>
+                  <button class="btn transparent" id="sign-up-btn">Sign Up</button>
+              </div>
+              <img src="../static/assets/picthree.svg" class="image" alt="">
+          </div>
+
+          <div class="panel right-panel">
+              <div class="content">
+                  <h3>One of us?</h3>
+                  <p>Welcome back to your marketing friend ,happy to see you again!</p>
+                  <button class="btn transparent" id="sign-in-btn">Sign In</button>
+              </div>
+              <img src="../static/assets/pictwo.svg" class="image" alt="">
+          </div>
+        </div>
+      </div>
+  </section>
+
+  <script>
+  const sign_in_btn = document.querySelector("#sign-in-btn");
+const sign_up_btn = document.querySelector("#sign-up-btn");
+const container = document.querySelector(".containerr");
+//inputs
+const firstName = document.getElementById("firstName");
+const lastName = document.getElementById("lastName");
+const username = document.getElementById("username");
+
+const email = document.getElementById("email");
+const password = document.getElementById("password");
+//the errors to display 
+const firstnameerror = document.querySelector('#firstNameError');
+const lastnameerror = document.querySelector('#lastNameError');
+const usernameerror = document.querySelector('#usernameError');
+
+const emailerror = document.querySelector('#emailError');
+const passworderror = document.querySelector('#passwordError');
+var isvalidf = false;
+var isvalidl = false;
+var isvalidu = false;
+
+var isvalide = false;
+var isvalidp = false;
+// Animation
+sign_up_btn.addEventListener('click', () => {
+  container.classList.add("sign-up-mode");
+  document.querySelector('.header-area').style.backgroundColor = "#F46036";
+  document.querySelector('.header-area .main-nav').style.backgroundColor = "#F46036";
+  document.querySelector('.header-area .main-nav .nav li:last-child a').style.backgroundColor = "#376996";
+});
+
+sign_in_btn.addEventListener('click', () => {
+  container.classList.remove("sign-up-mode");
+  document.querySelector('.header-area').style.backgroundColor = "#376996";
+  document.querySelector('.header-area .main-nav').style.backgroundColor = "#376996";
+  document.querySelector('.header-area .main-nav .nav li:last-child a').style.backgroundColor = "#F46036";
+});
+
+document.getElementById("signupForm").addEventListener("submit", function (event) {
+  if (isvalidf && isvalidl && isvalidu && isvalide && isvalidp) {
+    alert('Submitted with success');
+  } else {
+    event.preventDefault();
+  }
+});
+
+firstName.addEventListener('input', () => {
+  if (/\d/.test(firstName.value)) {
+    firstnameerror.style.color = "#F46036";
+    firstnameerror.innerHTML = "Should not include a number";
+    isvalidf = false;
+  } else {
+    firstnameerror.style.color = "#376996";
+    firstnameerror.innerHTML = "done!";
+    isvalidf = true;
+  }
+});
+
+lastName.addEventListener('input', () => {
+  if (/\d/.test(lastName.value)) {
+    lastnameerror.style.color = "#F46036";
+    lastnameerror.innerHTML = "Should not include a number";
+    isvalidl = false;
+  } else {
+    lastnameerror.style.color = "#376996";
+    lastnameerror.innerHTML = "done!";
+    isvalidl = true;
+  }
+});
+
+username.addEventListener('input', () => {
+  if (username.value.includes(' ')) {
+    usernameerror.style.color = "#F46036";
+    usernameerror.innerHTML = "Invalid username, should not contain spaces.";
+    isvalidu = false;
+  } else {
+    usernameerror.style.color = "#376996";
+    usernameerror.innerHTML = "done!";
+    isvalidu = true;
+  }
+});
+
+email.addEventListener('input', () => {
+  const emailValue = email.value.trim();
+
+  if (!/@.*\S/.test(emailValue) || emailValue.includes(' ')) {
+    emailerror.style.color = "#F46036";
+    emailerror.innerHTML = "Invalid email, please enter a valid one";
+    isvalide = false;
+  } else {
+    emailerror.style.color = "#376996";
+    emailerror.innerHTML = "done!";
+    isvalide = true;
+  }
+});
+
+
+
+password.addEventListener('input', () => {
+  if (password.value.length < 6) {
+    passworderror.style.color = "#F46036";
+    passworderror.innerHTML = "Password too short";
+    isvalidp = false;
+  } else {
+    passworderror.style.color = "#376996";
+    passworderror.innerHTML = "done!";
+    isvalidp = true;
+  }
+});
+
+
+</script>
+  </body>
+</html>
