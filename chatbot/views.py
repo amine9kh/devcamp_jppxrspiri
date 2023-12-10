@@ -2,7 +2,7 @@ from django.shortcuts import render
 from openai import OpenAI
 from django.http import JsonResponse
 
-client = OpenAI(api_key='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')
+client = OpenAI(api_key='API')
 # Create your views here.
 def chatbot_view(request):
     return render(request, 'chat.html')
