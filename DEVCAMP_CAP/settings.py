@@ -85,7 +85,7 @@ DATABASES = {
         'ENGINE': 'mysql.connector.django',
         'NAME': 'jppXgpt',
         'USER': 'root',
-        'PASSWORD': 'ptkWErMb-qBAf_lm',
+        'PASSWORD': 'db_password',
         'HOST': 'localhost',   # Or an IP Address that your DB is hosted on
         'PORT': '3306',
         
